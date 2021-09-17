@@ -12,20 +12,24 @@ const stream = {
     write: (message) => logger.http(message),
 }
 
-app.use(morgan(function (tokens, req, res) {
-    const data = [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, 'content-length'), '-',
-      tokens['response-time'](req, res), 'ms',
-      tokens['user-agent'](req, res),
-    ]
-  
-    return data.join(' ')
-  }, {
-    stream
-  }))
+app.use(
+    morgan(
+        function(tokens, req, res) {
+            return [
+                tokens.date(req,res,'clf'),
+                tokens.method(req, res),
+                tokens.url(req, res),
+                tokens.status(req, res),
+                tokens.res(req, res, "content-length"),
+                "-",
+                tokens["response-time"](req, res),
+                "ms",
+                JSON.stringify(req.body),
+            ].join(" ");
+        }, 
+        { stream }
+    )
+)
 
 app.post('/', async (req, res) => {
     consultarRaisQueue.handle(req.body)
